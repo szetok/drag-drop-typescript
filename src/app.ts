@@ -1,3 +1,55 @@
+enum ProjectStatus { Active, Finished };
+
+class Project {
+  constructor(
+    public id: string,
+    public title: string,
+    public description: string,
+    public people: number,
+    public status: ProjectStatus
+  ) {}
+}
+
+
+type Listener = (items: Project[]) => void;
+
+class ProjectState {
+  private listeners: Listener[] = [];
+  private projects: Project[] = [];
+  private static instance: ProjectState;
+
+  private constructor() {
+
+  }
+
+  static getInstance() {
+    if (this.instance) {
+      return this.instance;
+    }
+    this.instance = new ProjectState();
+    return this.instance;
+  }
+
+  addListener(listenerFunction: Listener) {
+    this.listeners.push(listenerFunction);
+  }
+
+  addProject(title: string, description: string, people: number) {
+    const newProject = new Project(
+      Math.random().toString(),
+      title,
+      description,
+      people,
+      ProjectStatus.Active);
+    this.projects.push(newProject);
+    for (const listenerFunction of this.listeners) {
+      listenerFunction(this.projects.slice());
+    }
+  }
+}
+
+const projectState = ProjectState.getInstance();
+
 interface Validatable {
   value: string | number;
   required?: boolean;
@@ -31,22 +83,33 @@ class ProjectList {
   templateElement: HTMLTemplateElement;
   hostElement: HTMLDivElement;
   sectionElement: HTMLElement;
+  assignedProjects: Project[];
 
   constructor(private type: 'active' | 'finished') {
     this.templateElement = document.getElementById('project-list')! as HTMLTemplateElement;
     this.hostElement = document.getElementById('app') as HTMLDivElement;
+    this.assignedProjects = [];
 
     const importedNode = document.importNode(this.templateElement.content, true);
     this.sectionElement = importedNode.firstElementChild as HTMLElement;
     this.sectionElement.id = `${this.type}-projects}`;
 
-    // this.titleInputElement = this.formElement.querySelector('#title') as HTMLInputElement;
-    // this.descriptionInputElement = this.formElement.querySelector('#description') as HTMLTextAreaElement;
-    // this.peopleInputElement = this.formElement.querySelector('#people') as HTMLInputElement;
+    projectState.addListener((projects: Project[]) => {
+      this.assignedProjects = projects;
+      this.renderProjects();
+    });
 
-    // this.configure();
     this.attach();
     this.renderContent();
+  }
+
+  private renderProjects() {
+    const listElement = document.getElementById(`${this.type}-projects-list`) as HTMLUListElement;
+    for (const projectItem of this.assignedProjects) {
+      const listItem = document.createElement('li');
+      listItem.textContent = projectItem.title;
+      listElement.appendChild(listItem);
+    }
   }
 
   private renderContent() {
@@ -129,6 +192,7 @@ class ProjectInput {
     if (Array.isArray(userInput)) {
       const [title, description, people] = userInput;
       console.log(title, description, people);
+      projectState.addProject(title, description, people);
       this.clearInputs();
     }
   }
