@@ -1,4 +1,7 @@
-enum ProjectStatus { Active, Finished };
+enum ProjectStatus {
+  Active,
+  Finished
+}
 
 class Project {
   constructor(
@@ -20,7 +23,7 @@ class State<T> {
   }
 }
 
-class ProjectState extends State<Project>{
+class ProjectState extends State<Project> {
   private projects: Project[] = [];
   private static instance: ProjectState;
 
@@ -46,7 +49,8 @@ class ProjectState extends State<Project>{
       title,
       description,
       people,
-      ProjectStatus.Active);
+      ProjectStatus.Active
+    );
     this.projects.push(newProject);
     for (const listenerFunction of this.listeners) {
       listenerFunction(this.projects.slice());
@@ -90,11 +94,21 @@ abstract class Component<T extends HTMLElement, U extends HTMLElement> {
   hostElement: T;
   element: U;
 
-  constructor(templateId: string, hostElementId: string, insertAtStart: boolean, newElementId?: string) {
-    this.templateElement = document.getElementById(templateId)! as HTMLTemplateElement;
+  constructor(
+    templateId: string,
+    hostElementId: string,
+    insertAtStart: boolean,
+    newElementId?: string
+  ) {
+    this.templateElement = document.getElementById(
+      templateId
+    )! as HTMLTemplateElement;
     this.hostElement = document.getElementById(hostElementId) as T;
 
-    const importedNode = document.importNode(this.templateElement.content, true);
+    const importedNode = document.importNode(
+      this.templateElement.content,
+      true
+    );
     this.element = importedNode.firstElementChild as U;
     if (newElementId) {
       this.element.id = newElementId;
@@ -106,9 +120,10 @@ abstract class Component<T extends HTMLElement, U extends HTMLElement> {
   private attach(insertAtStart: boolean) {
     this.hostElement.insertAdjacentElement(
       insertAtStart ? 'afterbegin' : 'beforeend',
-      this.element);
+      this.element
+    );
   }
-  
+
   abstract configure(): void;
   abstract renderContent(): void;
 }
@@ -130,14 +145,13 @@ class ProjectItem extends Component<HTMLUListElement, HTMLLIElement> {
     this.renderContent();
   }
 
-  configure() {
-
-  }
+  configure() {}
 
   renderContent() {
     this.element.querySelector('h2')!.textContent = this.project.title;
     this.element.querySelector('h3')!.textContent = this.persons + ' assigned';
-    this.element.querySelector('p')!.textContent = this.project.description.toString();
+    this.element.querySelector('p')!.textContent =
+      this.project.description.toString();
   }
 }
 
@@ -151,10 +165,10 @@ class ProjectList extends Component<HTMLDivElement, HTMLElement> {
     this.configure();
     this.renderContent();
   }
- 
+
   configure() {
     projectState.addListener((projects: Project[]) => {
-      const relevantProjects = projects.filter(proj => {
+      const relevantProjects = projects.filter((proj) => {
         if (this.type == 'active') {
           return proj.status === ProjectStatus.Active;
         }
@@ -168,11 +182,14 @@ class ProjectList extends Component<HTMLDivElement, HTMLElement> {
   renderContent() {
     const listId = `${this.type}-projects-list`;
     this.element.querySelector('ul')!.id = listId;
-    this.element.querySelector('h2')!.textContent = this.type.toUpperCase() + ' PROJECTS';
+    this.element.querySelector('h2')!.textContent =
+      this.type.toUpperCase() + ' PROJECTS';
   }
 
   private renderProjects() {
-    const listElement = document.getElementById(`${this.type}-projects-list`) as HTMLUListElement;
+    const listElement = document.getElementById(
+      `${this.type}-projects-list`
+    ) as HTMLUListElement;
     listElement.innerHTML = '';
     for (const projectItem of this.assignedProjects) {
       new ProjectItem(this.element.querySelector('ul')!.id, projectItem);
@@ -188,15 +205,21 @@ class ProjectInput extends Component<HTMLDivElement, HTMLFormElement> {
   constructor() {
     super('project-input', 'app', true, 'user-input');
 
-    this.titleInputElement = this.element.querySelector('#title') as HTMLInputElement;
-    this.descriptionInputElement = this.element.querySelector('#description') as HTMLTextAreaElement;
-    this.peopleInputElement = this.element.querySelector('#people') as HTMLInputElement;
+    this.titleInputElement = this.element.querySelector(
+      '#title'
+    ) as HTMLInputElement;
+    this.descriptionInputElement = this.element.querySelector(
+      '#description'
+    ) as HTMLTextAreaElement;
+    this.peopleInputElement = this.element.querySelector(
+      '#people'
+    ) as HTMLInputElement;
 
     this.configure();
   }
 
   configure() {
-    this.element.addEventListener('submit', this.submitHandler.bind(this))
+    this.element.addEventListener('submit', this.submitHandler.bind(this));
   }
 
   renderContent() {}
