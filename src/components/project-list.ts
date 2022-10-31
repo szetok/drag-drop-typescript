@@ -19,7 +19,6 @@ export class ProjectList
   }
 
   dragOverHandler(event: DragEvent): void {
-    console.log(event);
     if (event.dataTransfer && event.dataTransfer.types[0] === 'text/plain') {
       event.preventDefault();
       const listElement = this.element.querySelector('ul')!;
@@ -35,8 +34,7 @@ export class ProjectList
     );
   }
 
-  dragLeaveHandler(event: DragEvent): void {
-    console.log(event);
+  dragLeaveHandler(_: DragEvent): void {
     const listElement = this.element.querySelector('ul')!;
     listElement.classList.remove('droppable');
   }

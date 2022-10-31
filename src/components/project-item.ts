@@ -23,13 +23,11 @@ export class ProjectItem
   }
 
   dragStartHandler(event: DragEvent): void {
-    console.log(event);
     event.dataTransfer!.setData('text/plain', this.project.id);
     event.dataTransfer!.effectAllowed = 'move';
   }
 
-  dragEndHandler(event: DragEvent): void {
-    console.log(event);
+  dragEndHandler(_: DragEvent): void {
   }
 
   configure() {
